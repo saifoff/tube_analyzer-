@@ -35,6 +35,8 @@ A powerful Flask-based web application for analyzing YouTube videos and channels
   - JavaScript (ES6+)
   - Plotly.js for interactive charts
 
+![Example 1](example_1.png)
+
 ## Installation
 
 1. Clone the repository:
