@@ -1,6 +1,6 @@
 # YouTube Analyzer
 
-A powerful Flask-based web application for analyzing YouTube videos and channels. Get detailed insights, analytics, and performance metrics for any YouTube video or channel.
+YouTube Analyzer is a Flask-based web application designed to provide detailed insights into YouTube videos and channels. By leveraging the YouTube Data API v3, this tool fetches real-time data and processes it to deliver valuable analytics, including basic video statistics, engagement metrics, sentiment analysis of comments, and channel performance trends. With interactive visualizations powered by Plotly, users can easily interpret data and make informed decisions.
 
 ![Example](tube_analyzer.gif)
 
