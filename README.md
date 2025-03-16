@@ -2,6 +2,8 @@
 
 A powerful Flask-based web application for analyzing YouTube videos and channels. Get detailed insights, analytics, and performance metrics for any YouTube video or channel.
 
+![Example](tube_analyzer.gif)
+
 ## Features
 
 ### Video Analysis
