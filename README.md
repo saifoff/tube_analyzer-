@@ -100,20 +100,6 @@ http://localhost:5000
 - **Sentiment Analysis**: Analysis of comment sentiments (positive, negative, neutral)
 - **Recent Comments**: Display of latest comments with author information
 
-#### Example Negative Comments Detection
-The sentiment analyzer can identify negative comments like:
-1. "This video is a complete waste of time"
-2. "The audio quality is terrible, couldn't understand anything"
-3. "Very misleading thumbnail and title"
-4. "The presenter seems unprepared and keeps rambling"
-5. "Worst explanation I've ever seen on this topic"
-6. "Too many ads, unsubscribed"
-7. "The information is outdated and incorrect"
-8. "Poor editing makes this unwatchable"
-9. "Stop clickbaiting your viewers"
-10. "The background music is way too loud and annoying"
-
-These comments would be flagged by the sentiment analyzer and contribute to the negative sentiment percentage in the analysis.
 
 ### Channel Analysis
 - **Channel Overview**: Basic channel statistics
