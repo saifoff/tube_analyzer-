@@ -1,26 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Analyzer</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --card-bg: #ffffff;
+            --card-border: #dee2e6;
+        }
+
+        [data-bs-theme="dark"] {
+            --bg-color: #212529;
+            --text-color: #ffffff;
+            --card-bg: #2b3035;
+            --card-border: #373b3e;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
         .result-section {
             display: none;
             margin-top: 20px;
         }
+
         .loading {
             display: none;
+        }
+
+        .chart {
+            margin: 20px 0;
+            height: 400px;
+        }
+
+        .metric-card {
+            margin-bottom: 15px;
+            background-color: var(--card-bg);
+            border-color: var(--card-border);
+        }
+
+        .card-header {
+            background-color: var(--card-bg);
+            border-bottom-color: var(--card-border);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .theme-toggle .btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .dark-mode-icon, .light-mode-icon {
+            font-size: 1.2rem;
+            vertical-align: middle;
         }
     </style>
 </head>
 <body>
+    <!-- Theme Toggle Button -->
+    <div class="theme-toggle">
+        <button class="btn btn-outline-primary" id="themeToggle">
+            <i class="bi bi-sun-fill light-mode-icon"></i>
+            <i class="bi bi-moon-fill dark-mode-icon d-none"></i>
+        </button>
+    </div>
+
     <div class="container py-5">
         <h1 class="text-center mb-4">YouTube Analyzer</h1>
         
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <!-- Video Analysis Form -->
                 <div class="card mb-4">
                     <div class="card-header">
@@ -53,24 +117,119 @@
                     </div>
                 </div>
 
-                <!-- Results Sections -->
-                <div id="videoResults" class="result-section card mt-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Video Analysis Results</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="videoData"></div>
-                        <div id="videoComments"></div>
-                        <div id="videoAnalytics"></div>
+                <!-- Video Analysis Results -->
+                <div id="videoResults" class="result-section">
+                    <div class="row">
+                        <!-- Basic Metrics -->
+                        <div class="col-md-6">
+                            <div class="card metric-card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Basic Metrics</h6>
+                                </div>
+                                <div class="card-body" id="videoBasicMetrics"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Engagement Metrics -->
+                        <div class="col-md-6">
+                            <div class="card metric-card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Engagement Metrics</h6>
+                                </div>
+                                <div class="card-body" id="videoEngagementMetrics"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sentiment Analysis -->
+                        <div class="col-md-12">
+                            <div class="card metric-card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Comment Sentiment Analysis</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="sentimentChart" class="chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Performance Timeline -->
+                        <div class="col-md-12">
+                            <div class="card metric-card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Performance Timeline</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="performanceTimeline" class="chart"></div>
+                                    <div id="timelineStats" class="mt-3">
+                                        <div class="row justify-content-center">
+                                            <div class="col-md-3">
+                                                <p class="text-center mb-1"><strong>Days Since Upload</strong></p>
+                                                <p class="text-center" id="daysSinceUpload"></p>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <p class="text-center mb-1"><strong>Daily Avg Views</strong></p>
+                                                <p class="text-center" id="dailyAvgViews"></p>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <p class="text-center mb-1"><strong>Daily Avg Likes</strong></p>
+                                                <p class="text-center" id="dailyAvgLikes"></p>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <p class="text-center mb-1"><strong>Daily Avg Comments</strong></p>
+                                                <p class="text-center" id="dailyAvgComments"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div id="channelResults" class="result-section card mt-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Channel Analysis Results</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="channelData"></div>
+                <!-- Channel Analysis Results -->
+                <div id="channelResults" class="result-section">
+                    <div class="row">
+                        <!-- Channel Overview -->
+                        <div class="col-md-6">
+                            <div class="card metric-card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Channel Overview</h6>
+                                </div>
+                                <div class="card-body" id="channelOverview"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Upload Analysis -->
+                        <div class="col-md-6">
+                            <div class="card metric-card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Upload Analysis</h6>
+                                </div>
+                                <div class="card-body" id="uploadAnalysis"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Performance Trends -->
+                        <div class="col-md-12">
+                            <div class="card metric-card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Performance Trends</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="performanceChart" class="chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Top Videos -->
+                        <div class="col-md-12">
+                            <div class="card metric-card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Top Performing Videos</h6>
+                                </div>
+                                <div class="card-body" id="topVideos"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -84,8 +243,277 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        const lightIcon = themeToggle.querySelector('.light-mode-icon');
+        const darkIcon = themeToggle.querySelector('.dark-mode-icon');
+
+        // Check for saved theme preference or default to light
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-bs-theme', savedTheme);
+        updateThemeIcons(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            html.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcons(newTheme);
+            
+            // Update charts if they exist
+            updateChartsTheme(newTheme);
+        });
+
+        function updateThemeIcons(theme) {
+            if (theme === 'dark') {
+                lightIcon.classList.add('d-none');
+                darkIcon.classList.remove('d-none');
+                themeToggle.classList.remove('btn-outline-primary');
+                themeToggle.classList.add('btn-outline-light');
+            } else {
+                lightIcon.classList.remove('d-none');
+                darkIcon.classList.add('d-none');
+                themeToggle.classList.remove('btn-outline-light');
+                themeToggle.classList.add('btn-outline-primary');
+            }
+        }
+
+        function updateChartsTheme(theme) {
+            const chartBgColor = theme === 'dark' ? '#2b3035' : 'white';
+            const gridColor = theme === 'dark' ? '#373b3e' : '#eee';
+            const textColor = theme === 'dark' ? '#ffffff' : '#000000';
+
+            // Update sentiment chart if it exists
+            const sentimentChart = document.getElementById('sentimentChart');
+            if (sentimentChart && sentimentChart.data) {
+                Plotly.update('sentimentChart', {}, {
+                    paper_bgcolor: chartBgColor,
+                    plot_bgcolor: chartBgColor,
+                    font: { color: textColor }
+                });
+            }
+
+            // Update performance timeline if it exists
+            const performanceTimeline = document.getElementById('performanceTimeline');
+            if (performanceTimeline && performanceTimeline.data) {
+                Plotly.update('performanceTimeline', {}, {
+                    paper_bgcolor: chartBgColor,
+                    plot_bgcolor: chartBgColor,
+                    font: { color: textColor },
+                    xaxis: { gridcolor: gridColor, color: textColor },
+                    yaxis: { gridcolor: gridColor, color: textColor },
+                    yaxis2: { gridcolor: gridColor, color: textColor }
+                });
+            }
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat().format(num);
+        }
+
+        function createSentimentChart(sentimentData) {
+            const theme = html.getAttribute('data-bs-theme');
+            const chartBgColor = theme === 'dark' ? '#2b3035' : 'white';
+            const textColor = theme === 'dark' ? '#ffffff' : '#000000';
+
+            const data = [{
+                values: [
+                    sentimentData.positive,
+                    sentimentData.negative,
+                    sentimentData.neutral
+                ],
+                labels: ['Positive', 'Negative', 'Neutral'],
+                type: 'pie'
+            }];
+
+            const layout = {
+                height: 300,
+                margin: { t: 0, b: 0, l: 0, r: 0 },
+                paper_bgcolor: chartBgColor,
+                plot_bgcolor: chartBgColor,
+                font: { color: textColor }
+            };
+
+            Plotly.newPlot('sentimentChart', data, layout);
+        }
+
+        function createPerformanceTimeline(timelineData) {
+            const theme = html.getAttribute('data-bs-theme');
+            const chartBgColor = theme === 'dark' ? '#2b3035' : 'white';
+            const gridColor = theme === 'dark' ? '#373b3e' : '#eee';
+            const textColor = theme === 'dark' ? '#ffffff' : '#000000';
+
+            const data = [
+                {
+                    x: timelineData.performance_data.dates,
+                    y: timelineData.performance_data.metrics.views,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Views',
+                    yaxis: 'y1'
+                },
+                {
+                    x: timelineData.performance_data.dates,
+                    y: timelineData.performance_data.metrics.engagement,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Engagement %',
+                    yaxis: 'y2'
+                }
+            ];
+
+            const layout = {
+                height: 400,
+                margin: { t: 20, b: 40, l: 60, r: 60 },
+                xaxis: { 
+                    title: 'Date',
+                    gridcolor: gridColor,
+                    color: textColor
+                },
+                yaxis: { 
+                    title: 'Views',
+                    side: 'left',
+                    gridcolor: gridColor,
+                    color: textColor
+                },
+                yaxis2: {
+                    title: 'Engagement %',
+                    overlaying: 'y',
+                    side: 'right',
+                    gridcolor: gridColor,
+                    color: textColor
+                },
+                legend: {
+                    x: 0.5,
+                    y: 1.1,
+                    xanchor: 'center',
+                    orientation: 'h'
+                },
+                paper_bgcolor: chartBgColor,
+                plot_bgcolor: chartBgColor,
+                font: { color: textColor }
+            };
+
+            Plotly.newPlot('performanceTimeline', data, layout);
+
+            // Update timeline statistics
+            document.getElementById('daysSinceUpload').textContent = timelineData.days_active;
+            document.getElementById('dailyAvgViews').textContent = formatNumber(timelineData.daily_averages.views);
+            document.getElementById('dailyAvgLikes').textContent = formatNumber(timelineData.daily_averages.likes);
+            document.getElementById('dailyAvgComments').textContent = formatNumber(timelineData.daily_averages.comments);
+        }
+
+        function createPerformanceChart(topVideos) {
+            const theme = html.getAttribute('data-bs-theme');
+            const chartBgColor = theme === 'dark' ? '#2b3035' : 'white';
+            const gridColor = theme === 'dark' ? '#373b3e' : '#eee';
+            const textColor = theme === 'dark' ? '#ffffff' : '#000000';
+
+            // Format video titles into multiple lines
+            const formatTitle = (title) => {
+                const words = title.split(' ');
+                let lines = [''];
+                let currentLine = 0;
+                
+                words.forEach(word => {
+                    if ((lines[currentLine] + ' ' + word).length > 20) {
+                        currentLine++;
+                        lines[currentLine] = word;
+                    } else {
+                        lines[currentLine] = lines[currentLine] ? lines[currentLine] + ' ' + word : word;
+                    }
+                });
+                
+                return lines.join('<br>');
+            };
+
+            // Create hover text with full titles
+            const hoverText = topVideos.map(video => `Full Title: ${video.title}<br>Views: ${formatNumber(video.views)}<br>Engagement: ${video.engagement_rate.toFixed(2)}%`);
+
+            const data = [{
+                x: topVideos.map((_, index) => index + 1),
+                y: topVideos.map(video => video.views),
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Views',
+                hovertext: hoverText,
+                hoverinfo: 'text',
+                marker: {
+                    size: 8,
+                    color: '#007bff'
+                },
+                line: {
+                    color: '#007bff',
+                    width: 2
+                }
+            }, {
+                x: topVideos.map((_, index) => index + 1),
+                y: topVideos.map(video => video.engagement_rate),
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Engagement Rate (%)',
+                yaxis: 'y2',
+                hovertext: hoverText,
+                hoverinfo: 'text',
+                marker: {
+                    size: 8,
+                    color: '#28a745'
+                },
+                line: {
+                    color: '#28a745',
+                    width: 2
+                }
+            }];
+
+            const layout = {
+                height: 500, // Increased height to accommodate multiline titles
+                margin: { t: 20, b: 150, l: 60, r: 60 }, // Increased bottom margin
+                xaxis: { 
+                    title: 'Videos',
+                    ticktext: topVideos.map((video, index) => `#${index + 1}<br>${formatTitle(video.title)}`),
+                    tickvals: topVideos.map((_, index) => index + 1),
+                    tickangle: 0, // Reset angle to 0 since we're using multiple lines
+                    gridcolor: gridColor,
+                    color: textColor,
+                    tickfont: {
+                        size: 11
+                    },
+                    tickmode: 'array',
+                    automargin: true // Automatically adjust margins to show full text
+                },
+                yaxis: { 
+                    title: 'Views',
+                    side: 'left',
+                    gridcolor: gridColor,
+                    color: textColor
+                },
+                yaxis2: {
+                    title: 'Engagement Rate (%)',
+                    overlaying: 'y',
+                    side: 'right',
+                    gridcolor: gridColor,
+                    color: textColor
+                },
+                legend: {
+                    x: 0.5,
+                    y: 1.1,
+                    xanchor: 'center',
+                    orientation: 'h'
+                },
+                paper_bgcolor: chartBgColor,
+                plot_bgcolor: chartBgColor,
+                font: { color: textColor },
+                hovermode: 'closest',
+                showlegend: true
+            };
+
+            Plotly.newPlot('performanceChart', data, layout);
+        }
+
         document.getElementById('videoForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const videoUrl = document.getElementById('videoUrl').value;
@@ -94,61 +522,36 @@
             document.getElementById('videoResults').style.display = 'none';
             
             try {
-                // Get video data
-                const videoResponse = await fetch('/analyze-video', {
+                const response = await fetch('/analyze-video', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     body: `video_url=${encodeURIComponent(videoUrl)}`
                 });
-                const videoData = await videoResponse.json();
+                const data = await response.json();
 
-                // Get comments
-                const commentsResponse = await fetch('/video-comments', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: `video_url=${encodeURIComponent(videoUrl)}`
-                });
-                const commentsData = await commentsResponse.json();
-
-                // Get analytics
-                const analyticsResponse = await fetch('/video-analytics', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: `video_url=${encodeURIComponent(videoUrl)}`
-                });
-                const analyticsData = await analyticsResponse.json();
-
-                // Display results
-                document.getElementById('videoData').innerHTML = `
-                    <h6>Video Information</h6>
-                    <p><strong>Title:</strong> ${videoData.title}</p>
-                    <p><strong>Views:</strong> ${videoData.viewCount}</p>
-                    <p><strong>Likes:</strong> ${videoData.likeCount}</p>
-                    <p><strong>Comments:</strong> ${videoData.commentCount}</p>
+                // Display basic metrics
+                document.getElementById('videoBasicMetrics').innerHTML = `
+                    <p><strong>Title:</strong> ${data.basic_metrics.title}</p>
+                    <p><strong>Views:</strong> ${formatNumber(data.basic_metrics.viewCount)}</p>
+                    <p><strong>Likes:</strong> ${formatNumber(data.basic_metrics.likeCount)}</p>
+                    <p><strong>Comments:</strong> ${formatNumber(data.basic_metrics.commentCount)}</p>
                 `;
 
-                document.getElementById('videoComments').innerHTML = `
-                    <h6 class="mt-4">Recent Comments</h6>
-                    ${commentsData.slice(0, 5).map(comment => `
-                        <div class="card mb-2">
-                            <div class="card-body">
-                                <p class="mb-1">${comment.text}</p>
-                                <small class="text-muted">By ${comment.author}</small>
-                            </div>
-                        </div>
-                    `).join('')}
+                // Display engagement metrics
+                document.getElementById('videoEngagementMetrics').innerHTML = `
+                    <p><strong>Engagement Rate:</strong> ${data.engagement_metrics.engagement_rate.toFixed(2)}%</p>
+                    <p><strong>Like Rate:</strong> ${data.engagement_metrics.like_rate.toFixed(2)}%</p>
+                    <p><strong>Comment Rate:</strong> ${data.engagement_metrics.comment_rate.toFixed(2)}%</p>
+                    <p><strong>Overall Score:</strong> ${data.engagement_metrics.overall_score.toFixed(2)}</p>
                 `;
 
-                document.getElementById('videoAnalytics').innerHTML = `
-                    <h6 class="mt-4">Analytics</h6>
-                    <p><strong>Engagement Rate:</strong> ${analyticsData.engagement_rate.toFixed(2)}%</p>
-                `;
+                // Create sentiment chart
+                createSentimentChart(data.sentiment_analysis);
+
+                // Create performance timeline
+                createPerformanceTimeline(data.timeline_data);
 
                 document.getElementById('videoResults').style.display = 'block';
             } catch (error) {
@@ -175,12 +578,35 @@
                 });
                 const data = await response.json();
 
-                document.getElementById('channelData').innerHTML = `
-                    <p><strong>Channel Name:</strong> ${data.title}</p>
-                    <p><strong>Subscribers:</strong> ${data.subscriberCount}</p>
-                    <p><strong>Total Videos:</strong> ${data.videoCount}</p>
-                    <p><strong>Total Views:</strong> ${data.viewCount}</p>
+                // Display channel overview
+                document.getElementById('channelOverview').innerHTML = `
+                    <p><strong>Channel Name:</strong> ${data.basic_info.title}</p>
+                    <p><strong>Subscribers:</strong> ${formatNumber(data.basic_info.subscriberCount)}</p>
+                    <p><strong>Total Videos:</strong> ${formatNumber(data.basic_info.videoCount)}</p>
+                    <p><strong>Total Views:</strong> ${formatNumber(data.basic_info.viewCount)}</p>
                 `;
+
+                // Display upload analysis
+                document.getElementById('uploadAnalysis').innerHTML = `
+                    <p><strong>Average Upload Frequency:</strong> ${data.upload_analysis.average_frequency} days</p>
+                    <p><strong>Upload Trend:</strong> ${data.upload_analysis.frequency_trend}</p>
+                    <p><strong>Total Videos Analyzed:</strong> ${data.upload_analysis.total_videos}</p>
+                `;
+
+                // Create performance chart
+                createPerformanceChart(data.performance_trends.top_performing_videos);
+
+                // Display top videos
+                const topVideosHtml = data.performance_trends.top_performing_videos.map(video => `
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h6 class="card-title">${video.title}</h6>
+                            <p class="mb-0">Views: ${formatNumber(video.views)}</p>
+                            <p class="mb-0">Engagement Rate: ${video.engagement_rate.toFixed(2)}%</p>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('topVideos').innerHTML = topVideosHtml;
 
                 document.getElementById('channelResults').style.display = 'block';
             } catch (error) {

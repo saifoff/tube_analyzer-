@@ -15,7 +15,8 @@ def analyze_video():
         return jsonify({'error': 'Video URL is required'}), 400
     
     try:
-        video_data = youtube_service.get_video_data(video_url)
+        # Get comprehensive video analysis
+        video_data = youtube_service.get_video_performance(video_url)
         return jsonify(video_data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -27,7 +28,8 @@ def analyze_channel():
         return jsonify({'error': 'Channel URL is required'}), 400
     
     try:
-        channel_data = youtube_service.get_channel_data(channel_url)
+        # Get comprehensive channel analysis
+        channel_data = youtube_service.get_channel_analytics(channel_url)
         return jsonify(channel_data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
