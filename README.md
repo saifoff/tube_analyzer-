@@ -21,7 +21,7 @@ YouTube Analyzer is a Flask-based web application designed to provide detailed i
 
 ## Technologies Used
 
-- Backend:
+- Backend:-
   - Python 3.8+
   - Flask 2.0.3
   - Google YouTube API v3
@@ -29,7 +29,7 @@ YouTube Analyzer is a Flask-based web application designed to provide detailed i
   - Pandas for data processing
   - Plotly for data visualization
 
-- Frontend:
+- Frontend:-
   - HTML5/CSS3
   - Bootstrap 5.1.3
   - JavaScript (ES6+)
